@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 
+import 'activities/activity_repository.dart';
 import 'auth/authentication_service.dart';
 import 'login_page.dart';
 
 class ActivaApp extends StatelessWidget {
-  const ActivaApp({super.key, this.authentication, this.configurationError});
+  const ActivaApp({
+    super.key,
+    this.authentication,
+    this.configurationError,
+    this.activityRepository,
+  });
 
   final AuthenticationService? authentication;
   final String? configurationError;
+  final ActivityRepository? activityRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +50,7 @@ class ActivaApp extends StatelessWidget {
       home: LoginPage(
         authentication: authentication,
         configurationError: configurationError,
+        activityRepository: activityRepository,
       ),
     );
   }

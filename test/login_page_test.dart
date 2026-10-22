@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:activa/app.dart';
+import 'package:activa/activities_page.dart';
+import 'package:activa/activities/activity.dart';
+import 'package:activa/activities/activity_repository.dart';
 import 'package:activa/auth/authentication_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +19,11 @@ class FakeAuthenticationService implements AuthenticationService {
     calls++;
     return result(email, password);
   }
+}
+
+class EmptyActivityRepository implements ActivityRepository {
+  @override
+  Stream<List<Activity>> watchActivities() => Stream.value([]);
 }
 
 void main() {
@@ -76,7 +84,12 @@ void main() {
   ) async {
     final pending = Completer<void>();
     final authentication = FakeAuthenticationService((_, _) => pending.future);
-    await tester.pumpWidget(ActivaApp(authentication: authentication));
+    await tester.pumpWidget(
+      ActivaApp(
+        authentication: authentication,
+        activityRepository: EmptyActivityRepository(),
+      ),
+    );
     await tester.enterText(
       find.byKey(const Key('login-field')),
       ' test@example.com ',
@@ -94,7 +107,7 @@ void main() {
 
     pending.complete();
     await tester.pumpAndSettle();
-    expect(find.text('Activités'), findsOneWidget);
+    expect(find.byType(ActivitiesPage), findsOneWidget);
   });
 
   testWidgets('gère une erreur inattendue sans bloquer le formulaire', (

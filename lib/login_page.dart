@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 
+import 'activities/activity_repository.dart';
 import 'activities_page.dart';
 import 'auth/authentication_service.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, this.authentication, this.configurationError});
+  const LoginPage({
+    super.key,
+    this.authentication,
+    this.configurationError,
+    this.activityRepository,
+  });
 
   final AuthenticationService? authentication;
   final String? configurationError;
+  final ActivityRepository? activityRepository;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -50,7 +57,9 @@ class _LoginPageState extends State<LoginPage> {
       await authentication.signIn(email: login, password: password);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => const ActivitiesPage()),
+        MaterialPageRoute<void>(
+          builder: (_) => ActivitiesPage(repository: widget.activityRepository),
+        ),
       );
     } on AuthenticationException catch (error) {
       if (mounted) setState(() => _errorMessage = error.message);

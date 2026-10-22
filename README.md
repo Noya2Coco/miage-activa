@@ -1,13 +1,13 @@
 # Activa
 
-Activa est une application Flutter réalisée pour un mini-projet de Master 2 MIAGE IA2. Cette étape couvre uniquement l'US#1 : connexion par email et mot de passe avec Firebase Authentication, suivie d'une page « Activités » minimale.
+Activa est une application Flutter réalisée pour un mini-projet de Master 2 MIAGE IA2. Les US#1 et US#2 couvrent la connexion par Firebase Authentication et la consultation des activités enregistrées dans Cloud Firestore.
 
 Les conventions du dépôt sont dans [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Prérequis
 
 - Flutter et Dart compatibles avec le SDK indiqué dans `pubspec.yaml` (Flutter 3.44.6 et Dart 3.12.2 utilisés pendant le développement).
-- Un accès au projet Firebase associé à Activa, avec le fournisseur **Email/Password** activé dans Authentication.
+- Un accès au projet Firebase `activa-tp`, avec le fournisseur **Email/Password** activé dans Authentication et une base Cloud Firestore créée.
 - Chrome pour le lancement web. Pour Android, le SDK Android, les licences acceptées et un émulateur ou appareil détecté par `flutter devices` sont également nécessaires.
 
 ## Configuration Firebase
@@ -23,7 +23,17 @@ flutterfire configure --project=activa-tp --platforms=android,web --android-pack
 flutter pub get
 ```
 
-Dans la console du même projet Firebase, activer **Authentication > Sign-in method > Email/Password** et créer les comptes de démonstration dans **Authentication > Users**. Le champ **Login** de l'application correspond à l'adresse email Firebase. L'application ne crée pas de comptes et n'utilise pas encore Firestore.
+Dans la console du même projet Firebase, activer **Authentication > Sign-in method > Email/Password** et créer les comptes de démonstration dans **Authentication > Users**. Le champ **Login** de l'application correspond à l'adresse email Firebase. L'application ne crée pas de comptes.
+
+La base Firestore `(default)` du projet `activa-tp` a été créée dans la région `europe-west9` (Paris). Pour appliquer les règles présentes dans le dépôt :
+
+```sh
+firebase deploy --only firestore:rules --project activa-tp
+```
+
+La collection `activities` est lisible uniquement par les utilisateurs connectés. L'application cliente ne peut pas y écrire ; ajoutez ou modifiez les activités depuis la console Firebase avec un compte administrateur. Chaque document doit contenir `title` (texte), `location` (texte), `price` (nombre positif ou nul) et `imageUrl` (URL d'image). Le champ booléen `demo` est facultatif ; lorsqu'il vaut `true`, l'interface indique qu'il s'agit d'une démonstration.
+
+Trois documents de démonstration ont été ajoutés à Firestore. Leur contenu est conservé dans [data/demo_activities.json](data/demo_activities.json) pour référence. Les images sont servies par [Unsplash](https://unsplash.com/license) et nécessitent une connexion réseau.
 
 La [documentation Firebase pour Flutter](https://firebase.google.com/docs/flutter/setup?hl=fr) détaille FlutterFire et la [documentation sur Email/Password](https://firebase.google.com/docs/auth/flutter/password-auth) décrit le fournisseur d'authentification.
 
@@ -42,9 +52,12 @@ Pour Android, vérifier d'abord `flutter doctor` et `flutter devices`, puis lanc
 
 - Formulaire de connexion « Login » et « Password », avec mot de passe masqué.
 - Vérification des identifiants par Firebase Authentication, état de chargement et messages d'erreur.
-- Navigation vers une page « Activités » minimale après une connexion confirmée.
+- Navigation vers la liste des activités après une connexion confirmée.
+- Lecture de toutes les activités depuis Firestore, avec image, titre, lieu et prix ; états de chargement, liste vide et erreur.
+- Barre de navigation « Activités », « Panier » et « Profil » avec l'entrée courante mise en évidence.
+- Ouverture d'un détail simple au clic sur une activité.
 
-La liste des activités, le panier, le profil et les autres User Stories ne sont pas implémentés. L'identifiant Firebase (`uid`) pourra servir à associer un profil Firestore dans une étape ultérieure.
+Le panier et le profil affichent seulement un message d'attente. Le détail complet et l'ajout au panier relèvent des User Stories suivantes. L'identifiant Firebase (`uid`) pourra servir à associer un profil Firestore dans une étape ultérieure.
 
 ## Vérifications
 
@@ -52,6 +65,7 @@ La liste des activités, le panier, le profil et les autres User Stories ne sont
 dart format lib test
 flutter analyze
 flutter test
+flutter build web
 ```
 
 Sur la machine de développement utilisée ici, `flutter analyze` échoue depuis le chemin du dépôt contenant des caractères accentués avec une erreur interne de lecture JSON. L'analyse réussit depuis une jonction temporaire dont le chemin est ASCII ; `dart analyze` réussit aussi depuis le dépôt.
