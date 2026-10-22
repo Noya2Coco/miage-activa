@@ -4,11 +4,13 @@ import 'activities/activity.dart';
 import 'activities/activity_detail_page.dart';
 import 'activities/activity_image.dart';
 import 'activities/activity_repository.dart';
+import 'cart/cart_repository.dart';
 
 class ActivitiesPage extends StatefulWidget {
-  const ActivitiesPage({super.key, this.repository});
+  const ActivitiesPage({super.key, this.repository, this.cartRepository});
 
   final ActivityRepository? repository;
+  final CartRepository? cartRepository;
 
   @override
   State<ActivitiesPage> createState() => _ActivitiesPageState();
@@ -68,8 +70,10 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                       key: Key('activity-${activity.id}'),
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
-                          builder: (_) =>
-                              ActivityDetailPage(activity: activity),
+                          builder: (_) => ActivityDetailPage(
+                            activity: activity,
+                            cartRepository: widget.cartRepository,
+                          ),
                         ),
                       ),
                       child: Column(

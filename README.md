@@ -1,6 +1,6 @@
 # Activa
 
-Activa est une application Flutter réalisée pour un mini-projet de Master 2 MIAGE IA2. Les US#1 et US#2 couvrent la connexion par Firebase Authentication et la consultation des activités enregistrées dans Cloud Firestore.
+Activa est une application Flutter réalisée pour un mini-projet de Master 2 MIAGE IA2. Les US#1 à US#3 couvrent la connexion par Firebase Authentication, la consultation des activités et leur ajout au panier dans Cloud Firestore.
 
 Les conventions du dépôt sont dans [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -31,7 +31,9 @@ La base Firestore `(default)` du projet `activa-tp` a été créée dans la rég
 firebase deploy --only firestore:rules --project activa-tp
 ```
 
-La collection `activities` est lisible uniquement par les utilisateurs connectés. L'application cliente ne peut pas y écrire ; ajoutez ou modifiez les activités depuis la console Firebase avec un compte administrateur. Chaque document doit contenir `title` (texte), `location` (texte), `price` (nombre positif ou nul) et `imageUrl` (URL d'image). Le champ booléen `demo` est facultatif ; lorsqu'il vaut `true`, l'interface indique qu'il s'agit d'une démonstration.
+La collection `activities` est lisible uniquement par les utilisateurs connectés. L'application cliente ne peut pas y écrire ; ajoutez ou modifiez les activités depuis la console Firebase avec un compte administrateur. Chaque document doit contenir `title` (texte), `category` (texte), `location` (texte), `maxParticipants` (entier positif), `price` (nombre positif ou nul) et `imageUrl` (URL d'image). Le champ booléen `demo` est facultatif ; lorsqu'il vaut `true`, l'interface indique qu'il s'agit d'une démonstration.
+
+Le bouton « Ajouter au panier » crée un document `users/{uid}/cart/{activityId}` contenant `activityId` et `addedAt`. Les règles autorisent chaque utilisateur à lire son propre panier et à y ajouter une activité existante une seule fois. Les autres utilisateurs n'ont pas accès à ces documents.
 
 Trois documents de démonstration ont été ajoutés à Firestore. Leur contenu est conservé dans [data/demo_activities.json](data/demo_activities.json) pour référence. Les images sont servies par [Unsplash](https://unsplash.com/license) et nécessitent une connexion réseau.
 
@@ -55,9 +57,10 @@ Pour Android, vérifier d'abord `flutter doctor` et `flutter devices`, puis lanc
 - Navigation vers la liste des activités après une connexion confirmée.
 - Lecture de toutes les activités depuis Firestore, avec image, titre, lieu et prix ; états de chargement, liste vide et erreur.
 - Barre de navigation « Activités », « Panier » et « Profil » avec l'entrée courante mise en évidence.
-- Ouverture d'un détail simple au clic sur une activité.
+- Détail de l'activité avec image, titre, catégorie, lieu, capacité maximale et prix.
+- Bouton « Retour » et ajout de l'activité au panier de l'utilisateur connecté, avec confirmation et gestion des doublons et des erreurs.
 
-Le panier et le profil affichent seulement un message d'attente. Le détail complet et l'ajout au panier relèvent des User Stories suivantes. L'identifiant Firebase (`uid`) pourra servir à associer un profil Firestore dans une étape ultérieure.
+Les pages « Panier » et « Profil » affichent seulement un message d'attente ; leur contenu relève des User Stories suivantes.
 
 ## Vérifications
 

@@ -27,6 +27,6 @@ Ces règles s'appliquent à toute intervention sur le dépôt, quel que soit l'o
 
 ## Git
 
-- Ne jamais exécuter `git push`, publier une branche, créer une Pull Request, modifier les remotes ou réécrire l'historique existant.
+- Exécuter `git push` uniquement avec l'autorisation explicite de l'utilisateur. Ne pas créer de Pull Request, modifier les remotes ou réécrire l'historique existant sans demande explicite.
 - Les commits locaux sont possibles avec des messages courts, précis et fidèles aux modifications, sans signature automatique inutile ni auteur inventé.
 - Ne jamais committer de secrets, d'identifiants privés ou de fichiers temporaires.
