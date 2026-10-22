@@ -4,7 +4,9 @@ import 'activities/activity.dart';
 import 'activities/activity_detail_page.dart';
 import 'activities/activity_image.dart';
 import 'activities/activity_repository.dart';
+import 'cart/cart_page.dart';
 import 'cart/cart_repository.dart';
+import 'navigation/app_bottom_navigation_bar.dart';
 
 class ActivitiesPage extends StatefulWidget {
   const ActivitiesPage({super.key, this.repository, this.cartRepository});
@@ -137,28 +139,18 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
           );
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: AppBottomNavigationBar(
         currentIndex: 0,
-        selectedItemColor: theme.colorScheme.primary,
-        unselectedItemColor: theme.colorScheme.onSurfaceVariant,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            activeIcon: Icon(Icons.explore),
-            label: 'Activités',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_basket_outlined),
-            label: 'Panier',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Profil',
-          ),
-        ],
         onTap: (index) {
           if (index == 0) return;
+          if (index == 1) {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => CartPage(repository: widget.cartRepository),
+              ),
+            );
+            return;
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Cette rubrique arrive bientôt.')),
           );

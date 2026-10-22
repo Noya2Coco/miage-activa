@@ -1,3 +1,6 @@
+String formatPrice(double price) =>
+    '${price.toStringAsFixed(2).replaceAll('.', ',')} €';
+
 class Activity {
   const Activity({
     required this.id,
@@ -19,9 +22,7 @@ class Activity {
   final String imageUrl;
   final bool isDemo;
 
-  String get formattedPrice => price == 0
-      ? 'Gratuit'
-      : '${price.toStringAsFixed(2).replaceAll('.', ',')} €';
+  String get formattedPrice => price == 0 ? 'Gratuit' : formatPrice(price);
 
   factory Activity.fromMap(String id, Map<String, dynamic> data) {
     final title = data['title'];

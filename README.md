@@ -1,6 +1,6 @@
 # Activa
 
-Activa est une application Flutter réalisée pour un mini-projet de Master 2 MIAGE IA2. Les US#1 à US#3 couvrent la connexion par Firebase Authentication, la consultation des activités et leur ajout au panier dans Cloud Firestore.
+Activa est une application Flutter réalisée pour un mini-projet de Master 2 MIAGE IA2. Les US#1 à US#4 couvrent la connexion par Firebase Authentication, la consultation des activités et la gestion du panier dans Cloud Firestore.
 
 Les conventions du dépôt sont dans [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -33,7 +33,7 @@ firebase deploy --only firestore:rules --project activa-tp
 
 La collection `activities` est lisible uniquement par les utilisateurs connectés. L'application cliente ne peut pas y écrire ; ajoutez ou modifiez les activités depuis la console Firebase avec un compte administrateur. Chaque document doit contenir `title` (texte), `category` (texte), `location` (texte), `maxParticipants` (entier positif), `price` (nombre positif ou nul) et `imageUrl` (URL d'image). Le champ booléen `demo` est facultatif ; lorsqu'il vaut `true`, l'interface indique qu'il s'agit d'une démonstration.
 
-Le bouton « Ajouter au panier » crée un document `users/{uid}/cart/{activityId}` contenant `activityId` et `addedAt`. Les règles autorisent chaque utilisateur à lire son propre panier et à y ajouter une activité existante une seule fois. Les autres utilisateurs n'ont pas accès à ces documents.
+Le bouton « Ajouter au panier » crée un document `users/{uid}/cart/{activityId}` contenant `activityId` et `addedAt`. Les règles autorisent chaque utilisateur à lire son propre panier, à y ajouter une activité existante une seule fois et à retirer ses propres entrées. Les autres utilisateurs n'ont pas accès à ces documents.
 
 Trois documents de démonstration ont été ajoutés à Firestore. Leur contenu est conservé dans [data/demo_activities.json](data/demo_activities.json) pour référence. Les images sont servies par [Unsplash](https://unsplash.com/license) et nécessitent une connexion réseau.
 
@@ -59,8 +59,9 @@ Pour Android, vérifier d'abord `flutter doctor` et `flutter devices`, puis lanc
 - Barre de navigation « Activités », « Panier » et « Profil » avec l'entrée courante mise en évidence.
 - Détail de l'activité avec image, titre, catégorie, lieu, capacité maximale et prix.
 - Bouton « Retour » et ajout de l'activité au panier de l'utilisateur connecté, avec confirmation et gestion des doublons et des erreurs.
+- Page « Panier » affichant les activités de l'utilisateur connecté (image, titre, lieu, prix), le total général et une croix de retrait par activité. Le total se recalcule après un retrait.
 
-Les pages « Panier » et « Profil » affichent seulement un message d'attente ; leur contenu relève des User Stories suivantes.
+La page « Profil » affiche encore un message d'attente. Aucun paiement n'est proposé à ce stade.
 
 ## Vérifications
 

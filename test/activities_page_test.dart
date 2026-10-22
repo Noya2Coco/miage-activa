@@ -18,9 +18,16 @@ class FakeActivityRepository implements ActivityRepository {
 }
 
 class FakeCartRepository implements CartRepository {
-  FakeCartRepository(this.result);
+  FakeCartRepository(
+    this.result, {
+    Stream<List<CartEntry>>? items,
+    Future<void> Function(String activityId)? remove,
+  }) : _items = items ?? Stream.value([]),
+       _remove = remove ?? ((_) async {});
 
   final Future<CartAddResult> Function(String activityId) result;
+  final Stream<List<CartEntry>> _items;
+  final Future<void> Function(String activityId) _remove;
   int calls = 0;
 
   @override
@@ -28,6 +35,12 @@ class FakeCartRepository implements CartRepository {
     calls++;
     return result(activityId);
   }
+
+  @override
+  Stream<List<CartEntry>> watchItems() => _items;
+
+  @override
+  Future<void> removeActivity(String activityId) => _remove(activityId);
 }
 
 void main() {
