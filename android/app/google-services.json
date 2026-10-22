@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "798498998072",
+    "project_id": "activa-tp",
+    "storage_bucket": "activa-tp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:798498998072:android:65b6a48b9688a7e372e3cd",
+        "android_client_info": {
+          "package_name": "com.example.activa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBX1PCg6eFwLMfhoxxQk0FdSe6VHcKg-vs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
