@@ -7,11 +7,11 @@ service cloud.firestore {
       allow create: if request.auth != null
         && request.resource.data.keys().hasAll([
           'title', 'category', 'location', 'maxParticipants', 'price',
-          'imageUrl', 'imagePath', 'ownerId', 'createdAt'
+          'imageBytes', 'ownerId', 'createdAt'
         ])
         && request.resource.data.keys().hasOnly([
           'title', 'category', 'location', 'maxParticipants', 'price',
-          'imageUrl', 'imagePath', 'ownerId', 'createdAt'
+          'imageBytes', 'ownerId', 'createdAt'
         ])
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.title is string
@@ -25,12 +25,9 @@ service cloud.firestore {
         && request.resource.data.maxParticipants > 0
         && request.resource.data.price is int
         && request.resource.data.price >= 0
-        && request.resource.data.imageUrl is string
-        && request.resource.data.imageUrl.size() > 0
-        && request.resource.data.imagePath is string
-        && request.resource.data.imagePath.matches(
-          '^activities/' + request.auth.uid + '/' + activityId + '\\.(jpg|png|webp)$'
-        )
+        && request.resource.data.imageBytes is bytes
+        && request.resource.data.imageBytes.size() > 0
+        && request.resource.data.imageBytes.size() <= 500 * 1024
         && request.resource.data.createdAt == request.time;
       allow update, delete: if false;
     }

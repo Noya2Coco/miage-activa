@@ -1,19 +1,26 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 class ActivityImage extends StatelessWidget {
   const ActivityImage({
     super.key,
-    required this.url,
+    this.url,
+    this.bytes,
     required this.description,
   });
 
-  final String url;
+  final String? url;
+  final Uint8List? bytes;
   final String description;
 
   @override
   Widget build(BuildContext context) {
-    return Image.network(
-      url,
+    final ImageProvider image = bytes != null
+        ? MemoryImage(bytes!)
+        : NetworkImage(url!);
+    return Image(
+      image: image,
       fit: BoxFit.cover,
       width: double.infinity,
       semanticLabel: description,

@@ -123,6 +123,7 @@ class _CartPageState extends State<CartPage> {
                                                 )
                                               : ActivityImage(
                                                   url: activity.imageUrl,
+                                                  bytes: activity.imageBytes,
                                                   description: activity.title,
                                                 ),
                                         ),

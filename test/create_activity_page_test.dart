@@ -10,6 +10,7 @@ import 'package:activa/profile/profile_repository.dart';
 import 'package:activa/profile/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as image;
 
 class FakePhotoPicker implements ActivityPhotoPicker {
   @override
@@ -51,6 +52,15 @@ class FakeProfileRepository implements ProfileRepository {
 }
 
 void main() {
+  test('réduit une image pour Firestore', () {
+    final source = image.Image(width: 1200, height: 600);
+    final compressed = compressActivityPhoto(image.encodePng(source));
+    final decoded = image.decodeJpg(compressed);
+    expect(compressed.length, lessThanOrEqualTo(500 * 1024));
+    expect(decoded?.width, 1000);
+    expect(decoded?.height, 500);
+  });
+
   testWidgets('catégorie automatique et enregistrement de l’activité', (
     tester,
   ) async {

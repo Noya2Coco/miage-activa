@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:activa/activities/activity.dart';
 import 'package:activa/activities/activity_detail_page.dart';
 import 'package:activa/activities/activity_repository.dart';
 import 'package:activa/activities_page.dart';
 import 'package:activa/cart/cart_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -75,6 +77,20 @@ void main() {
       () => Activity.fromMap('broken', {'title': 'Sans lieu'}),
       throwsFormatException,
     );
+  });
+
+  test('lit une activité avec image stockée dans Firestore', () {
+    final bytes = Uint8List.fromList([1, 2, 3]);
+    final parsed = Activity.fromMap('new', {
+      'title': 'Balade',
+      'category': 'Nature',
+      'location': 'Paris',
+      'maxParticipants': 4,
+      'price': 0,
+      'imageBytes': Blob(bytes),
+    });
+    expect(parsed.imageBytes, bytes);
+    expect(parsed.imageUrl, isNull);
   });
 
   testWidgets('affiche les activités et ouvre le détail', (tester) async {

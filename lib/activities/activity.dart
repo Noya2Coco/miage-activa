@@ -1,3 +1,7 @@
+import 'dart:typed_data';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 String formatPrice(double price) =>
     '${price.toStringAsFixed(2).replaceAll('.', ',')} €';
 
@@ -9,7 +13,8 @@ class Activity {
     required this.location,
     required this.maxParticipants,
     required this.price,
-    required this.imageUrl,
+    this.imageUrl,
+    this.imageBytes,
     this.isDemo = false,
   });
 
@@ -19,7 +24,8 @@ class Activity {
   final String location;
   final int maxParticipants;
   final double price;
-  final String imageUrl;
+  final String? imageUrl;
+  final Uint8List? imageBytes;
   final bool isDemo;
 
   String get formattedPrice => price == 0 ? 'Gratuit' : formatPrice(price);
@@ -31,6 +37,8 @@ class Activity {
     final maxParticipants = data['maxParticipants'];
     final price = data['price'];
     final imageUrl = data['imageUrl'];
+    final imageBlob = data['imageBytes'];
+    final imageBytes = imageBlob is Blob ? imageBlob.bytes : null;
 
     if (title is! String ||
         title.trim().isEmpty ||
@@ -42,8 +50,8 @@ class Activity {
         maxParticipants <= 0 ||
         price is! num ||
         price < 0 ||
-        imageUrl is! String ||
-        imageUrl.trim().isEmpty) {
+        ((imageUrl is! String || imageUrl.trim().isEmpty) &&
+            (imageBytes == null || imageBytes.isEmpty))) {
       throw FormatException('Activité $id incomplète dans Firestore.');
     }
 
@@ -54,7 +62,8 @@ class Activity {
       location: location,
       maxParticipants: maxParticipants,
       price: price.toDouble(),
-      imageUrl: imageUrl,
+      imageUrl: imageUrl is String ? imageUrl : null,
+      imageBytes: imageBytes,
       isDemo: data['demo'] == true,
     );
   }

@@ -81,6 +81,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                     aspectRatio: 16 / 9,
                     child: ActivityImage(
                       url: activity.imageUrl,
+                      bytes: activity.imageBytes,
                       description: activity.title,
                     ),
                   ),
