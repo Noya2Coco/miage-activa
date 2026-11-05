@@ -7,6 +7,24 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /users/{userId} {
+      allow get: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasAll([
+          'birthday', 'address', 'postalCode', 'city'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'birthday', 'address', 'postalCode', 'city'
+        ])
+        && request.resource.data.birthday is string
+        && request.resource.data.address is string
+        && request.resource.data.postalCode is string
+        && request.resource.data.postalCode.matches('^[0-9]*$')
+        && request.resource.data.city is string;
+      allow list, delete: if false;
+    }
+
     match /users/{userId}/cart/{activityId} {
       allow read: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null

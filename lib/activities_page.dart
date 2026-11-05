@@ -4,15 +4,26 @@ import 'activities/activity.dart';
 import 'activities/activity_detail_page.dart';
 import 'activities/activity_image.dart';
 import 'activities/activity_repository.dart';
+import 'auth/authentication_service.dart';
 import 'cart/cart_page.dart';
 import 'cart/cart_repository.dart';
 import 'navigation/app_bottom_navigation_bar.dart';
+import 'profile/profile_page.dart';
+import 'profile/profile_repository.dart';
 
 class ActivitiesPage extends StatefulWidget {
-  const ActivitiesPage({super.key, this.repository, this.cartRepository});
+  const ActivitiesPage({
+    super.key,
+    this.repository,
+    this.cartRepository,
+    this.profileRepository,
+    this.authentication,
+  });
 
   final ActivityRepository? repository;
   final CartRepository? cartRepository;
+  final ProfileRepository? profileRepository;
+  final AuthenticationService? authentication;
 
   @override
   State<ActivitiesPage> createState() => _ActivitiesPageState();
@@ -31,7 +42,6 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(title: const Text('Activités')),
       body: StreamBuilder<List<Activity>>(
@@ -93,16 +103,6 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (activity.isDemo) ...[
-                                  Text(
-                                    'DÉMONSTRATION',
-                                    style: theme.textTheme.labelSmall?.copyWith(
-                                      color: theme.colorScheme.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                ],
                                 Text(
                                   activity.title,
                                   style: theme.textTheme.titleLarge?.copyWith(
@@ -146,13 +146,25 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
           if (index == 1) {
             Navigator.of(context).push(
               MaterialPageRoute<void>(
-                builder: (_) => CartPage(repository: widget.cartRepository),
+                builder: (_) => CartPage(
+                  repository: widget.cartRepository,
+                  profileRepository: widget.profileRepository,
+                  authentication: widget.authentication,
+                  activityRepository: widget.repository,
+                ),
               ),
             );
             return;
           }
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Cette rubrique arrive bientôt.')),
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => ProfilePage(
+                repository: widget.profileRepository,
+                authentication: widget.authentication,
+                activityRepository: widget.repository,
+                cartRepository: widget.cartRepository,
+              ),
+            ),
           );
         },
       ),

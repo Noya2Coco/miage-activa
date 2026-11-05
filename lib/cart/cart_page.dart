@@ -2,13 +2,26 @@ import 'package:flutter/material.dart';
 
 import '../activities/activity.dart';
 import '../activities/activity_image.dart';
+import '../activities/activity_repository.dart';
+import '../auth/authentication_service.dart';
 import '../navigation/app_bottom_navigation_bar.dart';
+import '../profile/profile_page.dart';
+import '../profile/profile_repository.dart';
 import 'cart_repository.dart';
 
 class CartPage extends StatefulWidget {
-  const CartPage({super.key, this.repository});
+  const CartPage({
+    super.key,
+    this.repository,
+    this.profileRepository,
+    this.authentication,
+    this.activityRepository,
+  });
 
   final CartRepository? repository;
+  final ProfileRepository? profileRepository;
+  final AuthenticationService? authentication;
+  final ActivityRepository? activityRepository;
 
   @override
   State<CartPage> createState() => _CartPageState();
@@ -220,8 +233,15 @@ class _CartPageState extends State<CartPage> {
           if (index == 0) {
             Navigator.of(context).pop();
           } else if (index == 2) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Cette rubrique arrive bientôt.')),
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute<void>(
+                builder: (_) => ProfilePage(
+                  repository: widget.profileRepository,
+                  authentication: widget.authentication,
+                  activityRepository: widget.activityRepository,
+                  cartRepository: widget.repository,
+                ),
+              ),
             );
           }
         },

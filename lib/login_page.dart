@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'activities/activity_repository.dart';
 import 'activities_page.dart';
 import 'auth/authentication_service.dart';
+import 'cart/cart_repository.dart';
+import 'profile/profile_repository.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({
@@ -10,11 +12,15 @@ class LoginPage extends StatefulWidget {
     this.authentication,
     this.configurationError,
     this.activityRepository,
+    this.cartRepository,
+    this.profileRepository,
   });
 
   final AuthenticationService? authentication;
   final String? configurationError;
   final ActivityRepository? activityRepository;
+  final CartRepository? cartRepository;
+  final ProfileRepository? profileRepository;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -58,7 +64,12 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
-          builder: (_) => ActivitiesPage(repository: widget.activityRepository),
+          builder: (_) => ActivitiesPage(
+            repository: widget.activityRepository,
+            cartRepository: widget.cartRepository,
+            profileRepository: widget.profileRepository,
+            authentication: widget.authentication,
+          ),
         ),
       );
     } on AuthenticationException catch (error) {
@@ -78,7 +89,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(title: const Text('Activa')),
       body: SafeArea(
@@ -90,33 +100,11 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(
-                    Icons.directions_run_rounded,
-                    color: theme.colorScheme.primary,
-                    size: 52,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Bienvenue sur Activa',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Connectez-vous pour continuer.',
-                    style: theme.textTheme.bodyLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 40),
                   TextField(
                     key: const Key('login-field'),
                     controller: _loginController,
                     decoration: const InputDecoration(
                       labelText: 'Login',
-                      hintText: 'Adresse email',
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                     keyboardType: TextInputType.emailAddress,
