@@ -1,6 +1,6 @@
 # Activa
 
-Activa est une application Flutter réalisée pour un mini-projet de Master 2 MIAGE IA2. Les US#1 à US#4 couvrent la connexion par Firebase Authentication, la consultation des activités et la gestion du panier dans Cloud Firestore.
+Activa est une application Flutter réalisée pour un mini-projet de Master 2 MIAGE IA2. Les US#1 à US#5 couvrent la connexion par Firebase Authentication, la consultation des activités, la gestion du panier et le profil utilisateur dans Cloud Firestore.
 
 Les conventions du dépôt sont dans [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -31,9 +31,11 @@ La base Firestore `(default)` du projet `activa-tp` a été créée dans la rég
 firebase deploy --only firestore:rules --project activa-tp
 ```
 
-La collection `activities` est lisible uniquement par les utilisateurs connectés. L'application cliente ne peut pas y écrire ; ajoutez ou modifiez les activités depuis la console Firebase avec un compte administrateur. Chaque document doit contenir `title` (texte), `category` (texte), `location` (texte), `maxParticipants` (entier positif), `price` (nombre positif ou nul) et `imageUrl` (URL d'image). Le champ booléen `demo` est facultatif ; lorsqu'il vaut `true`, l'interface indique qu'il s'agit d'une démonstration.
+La collection `activities` est lisible uniquement par les utilisateurs connectés. L'application cliente ne peut pas y écrire ; ajoutez ou modifiez les activités depuis la console Firebase avec un compte administrateur. Chaque document doit contenir `title` (texte), `category` (texte), `location` (texte), `maxParticipants` (entier positif), `price` (nombre positif ou nul) et `imageUrl` (URL d'image).
 
 Le bouton « Ajouter au panier » crée un document `users/{uid}/cart/{activityId}` contenant `activityId` et `addedAt`. Les règles autorisent chaque utilisateur à lire son propre panier, à y ajouter une activité existante une seule fois et à retirer ses propres entrées. Les autres utilisateurs n'ont pas accès à ces documents.
+
+Le profil utilise le document `users/{uid}` pour l'anniversaire, l'adresse, le code postal et la ville. Le login provient de Firebase Authentication et reste en lecture seule. Le mot de passe existant n'est jamais renvoyé par Firebase : le champ masqué du profil permet d'en saisir un nouveau, et peut rester vide pour le conserver. Un nouveau mot de passe est enregistré dans Firebase Authentication, jamais dans Firestore. Les règles Firestore limitent la lecture et l'écriture du profil à son propriétaire.
 
 Trois documents de démonstration ont été ajoutés à Firestore. Leur contenu est conservé dans [data/demo_activities.json](data/demo_activities.json) pour référence. Les images sont servies par [Unsplash](https://unsplash.com/license) et nécessitent une connexion réseau.
 
@@ -60,8 +62,9 @@ Pour Android, vérifier d'abord `flutter doctor` et `flutter devices`, puis lanc
 - Détail de l'activité avec image, titre, catégorie, lieu, capacité maximale et prix.
 - Bouton « Retour » et ajout de l'activité au panier de l'utilisateur connecté, avec confirmation et gestion des doublons et des erreurs.
 - Page « Panier » affichant les activités de l'utilisateur connecté (image, titre, lieu, prix), le total général et une croix de retrait par activité. Le total se recalcule après un retrait.
+- Page « Mon profil » affichant le login, un champ de nouveau mot de passe masqué, l'anniversaire, l'adresse, le code postal et la ville. Le bouton « Valider » enregistre les données et « Se déconnecter » revient à la page de connexion.
 
-La page « Profil » affiche encore un message d'attente. Aucun paiement n'est proposé à ce stade.
+L'US#6 (ajout d'activité avec catégorisation par IA) n'est pas développée. Aucun paiement n'est proposé à ce stade.
 
 ## Vérifications
 
@@ -76,7 +79,9 @@ Sur la machine de développement utilisée ici, `flutter analyze` échoue depuis
 
 ## Comptes de démonstration
 
-Deux comptes dédiés à la démonstration ont été créés dans Firebase Authentication. Le mot de passe commun est réservé à ce TP ; ne l'utilisez pour aucun autre compte.
+Deux comptes dédiés à la démonstration ont été créés dans Firebase Authentication. Leurs identifiants sont publics conformément aux modalités de rendu du TP ; ne les utilisez pour aucun autre compte ni aucune donnée privée.
+
+Ils disposent chacun d'un profil d'exemple modifiable dans Firestore.
 
 | Compte | Login | Mot de passe |
 |---|---|---|

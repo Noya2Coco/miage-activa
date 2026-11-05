@@ -65,7 +65,10 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     final activity = widget.activity;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Détail de l’activité')),
+      appBar: AppBar(
+        title: const Text('Détail de l’activité'),
+        automaticallyImplyLeading: false,
+      ),
       body: ListView(
         children: [
           Center(
@@ -86,10 +89,6 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (activity.isDemo) ...[
-                          const Chip(label: Text('Activité de démonstration')),
-                          const SizedBox(height: 12),
-                        ],
                         Text(
                           activity.title,
                           style: theme.textTheme.headlineMedium?.copyWith(
@@ -177,9 +176,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                           height: 22,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : Text(
-                          _isInCart ? 'Ajouté au panier' : 'Ajouter au panier',
-                        ),
+                      : const Text('Ajouter au panier'),
                 ),
               ),
             ],

@@ -97,7 +97,6 @@ void main() {
     expect(find.text(activity.title), findsOneWidget);
     expect(find.text(activity.location), findsOneWidget);
     expect(find.text('12,00 €'), findsOneWidget);
-    expect(find.text('DÉMONSTRATION'), findsOneWidget);
     expect(find.text('Activités'), findsNWidgets(2));
     expect(find.text('Panier'), findsOneWidget);
     expect(find.text('Profil'), findsOneWidget);
@@ -121,7 +120,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(cart.calls, 1);
     expect(find.text('Activité ajoutée au panier.'), findsOneWidget);
-    expect(find.text('Ajouté au panier'), findsOneWidget);
+    expect(find.text('Ajouter au panier'), findsOneWidget);
 
     await tester.tap(find.text('Retour'));
     await tester.pumpAndSettle();
