@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../activities/activity_repository.dart';
+import '../activities/activity_creation_repository.dart';
+import '../activities/create_activity_page.dart';
 import '../auth/authentication_service.dart';
 import '../cart/cart_page.dart';
 import '../cart/cart_repository.dart';
@@ -16,12 +18,14 @@ class ProfilePage extends StatefulWidget {
     this.repository,
     this.authentication,
     this.activityRepository,
+    this.activityCreationRepository,
     this.cartRepository,
   });
 
   final ProfileRepository? repository;
   final AuthenticationService? authentication;
   final ActivityRepository? activityRepository;
+  final ActivityCreationRepository? activityCreationRepository;
   final CartRepository? cartRepository;
 
   @override
@@ -274,6 +278,32 @@ class _ProfilePageState extends State<ProfilePage> {
                         onPressed: _load,
                         child: const Text('Réessayer'),
                       ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: _isSigningOut
+                          ? null
+                          : () async {
+                              final created = await Navigator.of(context)
+                                  .push<bool>(
+                                    MaterialPageRoute(
+                                      builder: (_) => CreateActivityPage(
+                                        repository:
+                                            widget.activityCreationRepository ??
+                                            FirebaseActivityCreationRepository(),
+                                      ),
+                                    ),
+                                  );
+                              if (created == true && context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Activité enregistrée.'),
+                                  ),
+                                );
+                              }
+                            },
+                      icon: const Icon(Icons.add),
+                      label: const Text('Ajouter une activité'),
+                    ),
                     const SizedBox(height: 16),
                     OutlinedButton(
                       onPressed: _isSigningOut || _isSaving ? null : _signOut,

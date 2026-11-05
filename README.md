@@ -31,7 +31,7 @@ La base Firestore `(default)` du projet `activa-tp` a été créée dans la rég
 firebase deploy --only firestore:rules --project activa-tp
 ```
 
-La collection `activities` est lisible uniquement par les utilisateurs connectés. L'application cliente ne peut pas y écrire ; ajoutez ou modifiez les activités depuis la console Firebase avec un compte administrateur. Chaque document doit contenir `title` (texte), `category` (texte), `location` (texte), `maxParticipants` (entier positif), `price` (nombre positif ou nul) et `imageUrl` (URL d'image).
+La collection `activities` est lisible uniquement par les utilisateurs connectés. Les utilisateurs connectés peuvent créer une activité depuis leur profil ; la modification et la suppression restent interdites côté client. Chaque document doit contenir `title` (texte), `category` (texte), `location` (texte), `maxParticipants` (entier positif), `price` (nombre positif ou nul) et `imageUrl` (URL d'image). Les activités créées contiennent aussi `ownerId`, `imagePath` et `createdAt`.
 
 Le bouton « Ajouter au panier » crée un document `users/{uid}/cart/{activityId}` contenant `activityId` et `addedAt`. Les règles autorisent chaque utilisateur à lire son propre panier, à y ajouter une activité existante une seule fois et à retirer ses propres entrées. Les autres utilisateurs n'ont pas accès à ces documents.
 
@@ -64,7 +64,21 @@ Pour Android, vérifier d'abord `flutter doctor` et `flutter devices`, puis lanc
 - Page « Panier » affichant les activités de l'utilisateur connecté (image, titre, lieu, prix), le total général et une croix de retrait par activité. Le total se recalcule après un retrait.
 - Page « Mon profil » affichant le login, un champ de nouveau mot de passe masqué, l'anniversaire, l'adresse, le code postal et la ville. Le bouton « Valider » enregistre les données et « Se déconnecter » revient à la page de connexion.
 
-L'US#6 (ajout d'activité avec catégorisation par IA) n'est pas développée. Aucun paiement n'est proposé à ce stade.
+- Depuis le profil, le bouton « Ajouter une activité » ouvre le formulaire de l'US#6 : choix d'une image, titre, catégorie en lecture seule déterminée par Gemini, lieu, capacité maximale et prix. Le prix n'accepte que les chiffres. « Valider » envoie l'image dans Cloud Storage puis crée l'activité dans Firestore.
+
+Aucun paiement n'est proposé à ce stade.
+
+## Mise en service de l'US#6
+
+Le code utilise Firebase AI Logic avec le modèle `gemini-3.8-flash` via la Gemini Developer API, ainsi que Cloud Storage for Firebase pour les images. Les appels à l'IA n'embarquent aucune clé API privée dans l'application.
+
+1. Accepter les [conditions de l'API Generative Language](https://console.cloud.google.com/terms/generative-language-api) avec le compte propriétaire du projet. L'activation d'AI Logic est bloquée tant que ces conditions ne sont pas acceptées.
+2. Dans la [console Firebase du projet](https://console.firebase.google.com/project/activa-tp/ailogic), activer **AI Logic** avec la **Gemini Developer API** pour les applications Android et Web. Ne pas choisir Vertex AI pour ce projet.
+3. Cloud Storage exige le forfait **Blaze**. Si ce forfait est accepté, l'activer dans la console Firebase, puis créer le bucket Storage par défaut `activa-tp.firebasestorage.app` (région Paris si disponible). Installer les règles après sa création : `firebase deploy --only firestore:rules,storage --project activa-tp`.
+4. Dans **App Check > Apps**, enregistrer les jetons de débogage de l'application Android et du navigateur local. Le jeton Android apparaît dans les logs de l'émulateur ; celui du Web dans la console du navigateur. Ne jamais les committer. En production, configurer Play Integrity pour Android et une clé de site reCAPTCHA v3 pour le Web. Pour le Web en production, fournir `--dart-define=APP_CHECK_WEB_SITE_KEY=<clé-de-site>` à Flutter.
+5. Lancer l'application, se connecter, ouvrir **Profil > Ajouter une activité**, choisir une image puis vérifier que la catégorie est remplie automatiquement et que « Valider » ajoute l'activité à la liste.
+
+Le formulaire peut être compilé et testé sans ces opérations, mais l'analyse d'image et l'enregistrement réels ne sont pas disponibles tant que les services Firebase correspondants ne sont pas activés.
 
 ## Vérifications
 
