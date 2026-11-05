@@ -111,6 +111,18 @@ void main() {
           .obscureText,
       isTrue,
     );
+    expect(
+      tester
+          .widget<InputDecorator>(
+            find.descendant(
+              of: find.byKey(const Key('profile-password')),
+              matching: find.byType(InputDecorator),
+            ),
+          )
+          .decoration
+          .hintText,
+      '••••••••',
+    );
     expect(find.text('Valider'), findsOneWidget);
     expect(
       tester

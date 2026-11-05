@@ -208,6 +208,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               obscureText: true,
                               decoration: const InputDecoration(
                                 labelText: 'Password',
+                                hintText: '••••••••',
                                 helperText:
                                     'Laisser vide pour conserver le mot de passe.',
                               ),
