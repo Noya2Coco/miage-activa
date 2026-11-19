@@ -45,19 +45,19 @@ class _CreateActivityPageState extends State<CreateActivityPage> {
 
   Future<void> _pickPhoto() async {
     if (_classifying || _saving) return;
-    setState(() {
-      _classifying = true;
-      _error = null;
-      _photo = null;
-      _category.clear();
-    });
+    setState(() => _error = null);
     try {
       final photo = await (widget.photoPicker ?? GalleryActivityPhotoPicker())
           .pick();
+      // Une annulation conserve l'image et la catégorie déjà choisies.
       if (photo == null || !mounted) return;
-      setState(() => _photo = photo);
+      setState(() {
+        _photo = photo;
+        _category.clear();
+        _classifying = true;
+      });
       final category =
-          await (widget.classifier ?? FirebaseAiActivityCategoryClassifier())
+          await (widget.classifier ?? OnDeviceActivityCategoryClassifier())
               .classify(photo.bytes, photo.mimeType);
       if (mounted) setState(() => _category.text = category);
     } on FormatException catch (error) {

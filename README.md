@@ -1,103 +1,90 @@
 # Activa
 
-Activa est une application Flutter réalisée pour un mini-projet de Master 2 MIAGE IA2. Les US#1 à US#5 couvrent la connexion par Firebase Authentication, la consultation des activités, la gestion du panier et le profil utilisateur dans Cloud Firestore.
+Activa est une application Flutter réalisée pour le TP2 du Master 2 MIAGE IA2. Elle permet de se connecter, de consulter des activités, de les ajouter à un panier, de gérer son profil et de créer une activité dont la catégorie est déterminée automatiquement par reconnaissance d'image.
+
+**L'application cible uniquement Android.** La reconnaissance d'image de l'US#6 s'exécute sur le téléphone avec Google ML Kit, qui n'existe pas pour le Web. Aucune configuration iOS n'est fournie.
 
 Les conventions du dépôt sont dans [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Prérequis
-
-- Flutter et Dart compatibles avec le SDK indiqué dans `pubspec.yaml` (Flutter 3.44.6 et Dart 3.12.2 utilisés pendant le développement).
-- Un accès au projet Firebase `activa-tp`, avec le fournisseur **Email/Password** activé dans Authentication et une base Cloud Firestore créée.
-- Chrome pour le lancement web. Pour Android, le SDK Android, les licences acceptées et un émulateur ou appareil détecté par `flutter devices` sont également nécessaires.
-
-## Configuration Firebase
-
-Le dépôt utilise la configuration générée par FlutterFire pour Android et Web : `lib/firebase_options.dart`, `firebase.json` et `android/app/google-services.json`. Le fichier d'options est utilisé dans `lib/main.dart` pour initialiser Firebase avec la configuration correspondant à la plateforme. Ces fichiers contiennent des identifiants de projet, pas de mots de passe utilisateur.
-
-Pour configurer une nouvelle copie du dépôt ou actualiser ses applications Firebase :
-
-```sh
-firebase login
-dart pub global activate flutterfire_cli
-flutterfire configure --project=activa-tp --platforms=android,web --android-package-name=com.example.activa
-flutter pub get
-```
-
-Dans la console du même projet Firebase, activer **Authentication > Sign-in method > Email/Password** et créer les comptes de démonstration dans **Authentication > Users**. Le champ **Login** de l'application correspond à l'adresse email Firebase. L'application ne crée pas de comptes.
-
-La base Firestore `(default)` du projet `activa-tp` a été créée dans la région `europe-west9` (Paris). Pour appliquer les règles présentes dans le dépôt :
-
-```sh
-firebase deploy --only firestore:rules --project activa-tp
-```
-
-La collection `activities` est lisible uniquement par les utilisateurs connectés. Les utilisateurs connectés peuvent créer une activité depuis leur profil ; la modification et la suppression restent interdites côté client. Chaque document doit contenir `title` (texte), `category` (texte), `location` (texte), `maxParticipants` (entier positif), `price` (nombre positif ou nul) et une image. Les activités de démonstration utilisent `imageUrl` ; les activités créées contiennent `imageBytes` (image JPEG compressée, 500 Kio maximum), `ownerId` et `createdAt`.
-
-Le bouton « Ajouter au panier » crée un document `users/{uid}/cart/{activityId}` contenant `activityId` et `addedAt`. Les règles autorisent chaque utilisateur à lire son propre panier, à y ajouter une activité existante une seule fois et à retirer ses propres entrées. Les autres utilisateurs n'ont pas accès à ces documents.
-
-Le profil utilise le document `users/{uid}` pour l'anniversaire, l'adresse, le code postal et la ville. Le login provient de Firebase Authentication et reste en lecture seule. Le mot de passe existant n'est jamais renvoyé par Firebase : le champ masqué du profil permet d'en saisir un nouveau, et peut rester vide pour le conserver. Un nouveau mot de passe est enregistré dans Firebase Authentication, jamais dans Firestore. Les règles Firestore limitent la lecture et l'écriture du profil à son propriétaire.
-
-Trois documents de démonstration ont été ajoutés à Firestore. Leur contenu est conservé dans [data/demo_activities.json](data/demo_activities.json) pour référence. Les images sont servies par [Unsplash](https://unsplash.com/license) et nécessitent une connexion réseau.
-
-La [documentation Firebase pour Flutter](https://firebase.google.com/docs/flutter/setup?hl=fr) détaille FlutterFire et la [documentation sur Email/Password](https://firebase.google.com/docs/auth/flutter/password-auth) décrit le fournisseur d'authentification.
-
-## Lancement
-
-Dans le dossier du projet :
-
-```sh
-flutter pub get
-flutter run -d chrome
-```
-
-Pour Android, vérifier d'abord `flutter doctor` et `flutter devices`, puis lancer `flutter run -d <identifiant-appareil>`.
-
-## Fonctionnalités implémentées
-
-- Formulaire de connexion « Login » et « Password », avec mot de passe masqué.
-- Vérification des identifiants par Firebase Authentication, état de chargement et messages d'erreur.
-- Navigation vers la liste des activités après une connexion confirmée.
-- Lecture de toutes les activités depuis Firestore, avec image, titre, lieu et prix ; états de chargement, liste vide et erreur.
-- Barre de navigation « Activités », « Panier » et « Profil » avec l'entrée courante mise en évidence.
-- Détail de l'activité avec image, titre, catégorie, lieu, capacité maximale et prix.
-- Bouton « Retour » et ajout de l'activité au panier de l'utilisateur connecté, avec confirmation et gestion des doublons et des erreurs.
-- Page « Panier » affichant les activités de l'utilisateur connecté (image, titre, lieu, prix), le total général et une croix de retrait par activité. Le total se recalcule après un retrait.
-- Page « Mon profil » affichant le login, un champ de nouveau mot de passe masqué, l'anniversaire, l'adresse, le code postal et la ville. Le bouton « Valider » enregistre les données et « Se déconnecter » revient à la page de connexion.
-
-- Depuis le profil, le bouton « Ajouter une activité » ouvre le formulaire de l'US#6 : choix d'une image, titre, catégorie en lecture seule déterminée par Gemini, lieu, capacité maximale et prix. Le prix n'accepte que les chiffres. « Valider » compresse l'image et crée l'activité dans Firestore.
-
-Aucun paiement n'est proposé à ce stade.
-
-## Mise en service de l'US#6
-
-Le code utilise Firebase AI Logic avec le modèle `gemini-3.8-flash` via la Gemini Developer API. Les appels à l'IA n'embarquent aucune clé API privée dans l'application. Les images sont réduites et stockées dans Firestore pour conserver le projet sans facturation. Cette solution convient au mini-projet, mais chaque lecture d'activité transfère aussi son image ; elle n'est pas adaptée à une grande photothèque.
-
-1. Accepter les [conditions de l'API Generative Language](https://console.cloud.google.com/terms/generative-language-api) avec le compte propriétaire du projet. L'activation d'AI Logic est bloquée tant que ces conditions ne sont pas acceptées.
-2. Dans la [console Firebase du projet](https://console.firebase.google.com/project/activa-tp/ailogic), activer **AI Logic** avec la **Gemini Developer API** pour les applications Android et Web. Ne pas choisir Vertex AI pour ce projet.
-3. Déployer les règles : `firebase deploy --only firestore:rules --project activa-tp`. Aucun bucket Storage ni forfait Blaze n'est nécessaire.
-4. Dans **App Check > Apps**, enregistrer les jetons de débogage de l'application Android et du navigateur local. Le jeton Android apparaît dans les logs de l'émulateur ; celui du Web dans la console du navigateur. Ne jamais les committer. En production, configurer Play Integrity pour Android et une clé de site reCAPTCHA v3 pour le Web. Pour le Web en production, fournir `--dart-define=APP_CHECK_WEB_SITE_KEY=<clé-de-site>` à Flutter.
-5. Lancer l'application, se connecter, ouvrir **Profil > Ajouter une activité**, choisir une image puis vérifier que la catégorie est remplie automatiquement et que « Valider » ajoute l'activité à la liste.
-
-Le formulaire peut être compilé et testé sans ces opérations, mais l'analyse d'image réelle nécessite l'activation d'AI Logic.
-
-## Vérifications
-
-```sh
-dart format lib test
-flutter analyze
-flutter test
-flutter build web
-```
-
-Sur la machine de développement utilisée ici, `flutter analyze` échoue depuis le chemin du dépôt contenant des caractères accentués avec une erreur interne de lecture JSON. L'analyse réussit depuis une jonction temporaire dont le chemin est ASCII ; `dart analyze` réussit aussi depuis le dépôt.
-
 ## Comptes de démonstration
 
-Deux comptes dédiés à la démonstration ont été créés dans Firebase Authentication. Leurs identifiants sont publics conformément aux modalités de rendu du TP ; ne les utilisez pour aucun autre compte ni aucune donnée privée.
-
-Ils disposent chacun d'un profil d'exemple modifiable dans Firestore.
+Deux comptes dédiés à la démonstration existent dans Firebase Authentication, chacun avec un profil d'exemple dans Firestore. Leurs identifiants sont publics conformément aux modalités de rendu du TP.
 
 | Compte | Login | Mot de passe |
 |---|---|---|
 | Démonstration 1 | demo1@gmail.com | password |
 | Démonstration 2 | demo2@gmail.com | password |
+
+Saisir un nouveau mot de passe dans le profil puis cliquer sur « Valider » modifie réellement le mot de passe du compte. Pour garder ces identifiants valables, laisser ce champ vide lors des essais.
+
+## Lancement
+
+Prérequis : Flutter 3.44.6 / Dart 3.12.2 (ou compatibles avec `pubspec.yaml`), le SDK Android et un émulateur ou un téléphone Android détecté par `flutter devices`. Le projet Firebase `activa-tp` est déjà configuré : aucune clé ni étape supplémentaire n'est nécessaire.
+
+```sh
+flutter pub get
+flutter run -d <identifiant-appareil-android>
+```
+
+Une connexion réseau est nécessaire pour Firebase et pour les images des activités de démonstration. La reconnaissance d'image, elle, fonctionne hors ligne.
+
+## Fonctionnalités réalisées
+
+Toutes les User Stories du sujet sont réalisées.
+
+- **US#1 Connexion** : en-tête « Activa », champs « Login » et « Password » (masqué), bouton « Se connecter ». Les identifiants sont vérifiés par Firebase Authentication. En cas d'échec ou de champs vides, un message s'affiche et l'application reste utilisable.
+- **US#2 Liste des activités** : liste déroulante lue depuis Firestore (image, titre, lieu, prix) et barre de navigation « Activités », « Panier », « Profil » dont l'entrée courante est mise en évidence.
+- **US#3 Détail** : image, titre, catégorie, lieu, nombre de personnes maximum et prix, avec les boutons « Retour » et « Ajouter au panier » (enregistrement dans Firestore, doublons évités).
+- **US#4 Panier** : activités du panier (image, titre, lieu, prix), total général et croix de retrait à droite de chaque activité. Le total se met à jour après un retrait. Aucun bouton de paiement.
+- **US#5 Profil** : login en lecture seule, mot de passe masqué, anniversaire, adresse, code postal (clavier numérique, chiffres uniquement) et ville. « Valider » enregistre dans Firestore, « Se déconnecter » revient à la page de connexion.
+- **US#6 Ajout d'une activité** : depuis le profil, le bouton « Ajouter une activité » ouvre un formulaire avec image, titre, catégorie non éditable remplie automatiquement à partir de l'image, lieu, nombre de personnes maximum et prix (clavier numérique, chiffres uniquement). « Valider » enregistre l'activité dans Firestore ; elle apparaît aussitôt dans la liste.
+
+## Intelligence artificielle (US#6)
+
+La catégorie est déterminée par [ML Kit Image Labeling](https://developers.google.com/ml-kit/vision/image-labeling), un réseau de neurones de Google exécuté directement sur le téléphone. Le modèle reconnaît environ 400 étiquettes (« Mountain », « Bicycle », « Pizza », « Museum », « Handbag »…). L'application additionne la confiance des étiquettes reconnues pour chaque catégorie et retient la plus probable :
+
+| Catégorie | Exemples d'étiquettes |
+|---|---|
+| Sport | Bicycle, Cycling, Skiing, Surfing, Soccer, Stadium, Running |
+| Culture | Museum, Monument, Concert, Statue, Castle, Musical instrument |
+| Cuisine | Food, Pizza, Sushi, Cake, Coffee, Kitchen, Wine |
+| Nature | Mountain, Forest, Lake, Beach, Waterfall, Flower, Sky |
+| Shopping | Handbag, Shoe, Dress, Jewellery, Sunglasses, Jeans |
+| Bien-être | Pool, Bathing, Sleep, Swimwear |
+| Autre | aucune étiquette reconnue parmi les précédentes |
+
+La correspondance complète est dans [lib/activities/activity_category_classifier.dart](lib/activities/activity_category_classifier.dart).
+
+Ce choix évite les appels réseau, les quotas et la latence d'un service distant, sans clé API ni facturation. L'analyse prend une à deux secondes sur l'émulateur ; la toute première analyse après le lancement est plus lente, le temps de charger le modèle.
+
+Pour tester, choisir dans la galerie du téléphone une photo de paysage de montagne (Nature), de vélo ou de match (Sport), de plat cuisiné (Cuisine) ou de sac et chaussures (Shopping). Sur un émulateur, une image peut être ajoutée à la galerie en la glissant sur la fenêtre de l'émulateur.
+
+## Données Firebase
+
+- `activities` : lisible par les utilisateurs connectés. Chaque document contient `title`, `category`, `location`, `maxParticipants` (entier positif), `price` (nombre positif ou nul) et une image. Les trois activités de démonstration utilisent `imageUrl` (images [Unsplash](https://unsplash.com/license)) ; leur contenu est conservé dans [data/demo_activities.json](data/demo_activities.json). Les activités créées depuis l'application contiennent `imageBytes` (JPEG compressé, 500 Kio maximum), `ownerId` et `createdAt`. Les images sont stockées dans Firestore pour éviter Cloud Storage et la facturation ; cette solution convient au TP mais pas à une grande photothèque.
+- `users/{uid}` : anniversaire, adresse, code postal et ville. Le mot de passe n'est jamais stocké dans Firestore : un nouveau mot de passe est enregistré dans Firebase Authentication.
+- `users/{uid}/cart/{activityId}` : `activityId` et `addedAt`.
+
+Les règles de [firestore.rules](firestore.rules) limitent le profil et le panier à leur propriétaire, vérifient le format des activités créées et interdisent leur modification ou suppression côté client.
+
+## Configuration d'une nouvelle copie Firebase
+
+Cette section n'est utile que pour rattacher le code à un autre projet Firebase.
+
+```sh
+firebase login
+dart pub global activate flutterfire_cli
+flutterfire configure --project=<projet> --platforms=android --android-package-name=com.example.activa
+firebase deploy --only firestore:rules --project <projet>
+```
+
+Dans la console Firebase, activer **Authentication > Sign-in method > Email/Password**, créer les comptes dans **Authentication > Users** et créer une base Cloud Firestore. Le champ **Login** de l'application correspond à l'adresse email Firebase ; l'application ne crée pas de comptes.
+
+## Vérifications
+
+```sh
+dart format lib test
+dart analyze
+flutter test
+flutter build apk --debug
+```

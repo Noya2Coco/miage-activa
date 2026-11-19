@@ -73,8 +73,10 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     } on AuthenticationException catch (error) {
+      debugPrint('Connexion refusée pour $login : ${error.message}');
       if (mounted) setState(() => _errorMessage = error.message);
-    } catch (_) {
+    } catch (error) {
+      debugPrint('Connexion impossible pour $login : $error');
       if (mounted) {
         setState(
           () => _errorMessage =

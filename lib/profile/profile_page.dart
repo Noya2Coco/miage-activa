@@ -110,6 +110,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _save() async {
     if (_isSaving || _isSigningOut || _profile == null) return;
     if (!_formKey.currentState!.validate()) return;
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _isSaving = true;
       _errorMessage = null;
@@ -283,6 +284,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       onPressed: _isSigningOut
                           ? null
                           : () async {
+                              FocusManager.instance.primaryFocus?.unfocus();
                               final created = await Navigator.of(context)
                                   .push<bool>(
                                     MaterialPageRoute(

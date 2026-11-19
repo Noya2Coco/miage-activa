@@ -52,6 +52,16 @@ class FakeProfileRepository implements ProfileRepository {
 }
 
 void main() {
+  test('déduit la catégorie des étiquettes reconnues', () {
+    expect(categoryForLabels({'Mountain': 0.9, 'Sky': 0.8}), 'Nature');
+    expect(categoryForLabels({'Bicycle': 0.9, 'Mountain': 0.5}), 'Sport');
+    expect(categoryForLabels({'Food': 0.8, 'Pizza': 0.7}), 'Cuisine');
+    expect(categoryForLabels({'Museum': 0.7}), 'Culture');
+    expect(categoryForLabels({'Handbag': 0.8, 'Shoe': 0.6}), 'Shopping');
+    expect(categoryForLabels({'Person': 0.9, 'Smile': 0.8}), 'Autre');
+    expect(categoryForLabels({}), 'Autre');
+  });
+
   test('réduit une image pour Firestore', () {
     final source = image.Image(width: 1200, height: 600);
     final compressed = compressActivityPhoto(image.encodePng(source));
